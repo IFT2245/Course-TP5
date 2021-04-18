@@ -17,8 +17,11 @@ la machine de Turing décrite dans le fichier sur ledit input. Rien de très sor
 ## 1.1 Compilation
 
 Commencez par modifier le Dockerfile pour que le TP0 soit compilé lors de `docker build`. Vous aurez besoin de CMake,
-make, gcc, etc. **NOTEZ QUE VOUS DEVEZ UTILISER `git clone` POUR OBTENIR LE FICHIER! VOUS NE POUVEZ SUPPOSER LA PRÉSENCE D'AUCUN
-FICHIER LOCAL, SAUF CEUX FOURNIS DANS CET ÉNONCÉ!**
+make, gcc, etc. 
+
+**NOTEZ QUE VOUS DEVEZ UTILISER `git clone` POUR OBTENIR LE FICHIER! VOUS NE POUVEZ SUPPOSER LA PRÉSENCE D'AUCUN
+FICHIER LOCAL, SAUF CEUX FOURNIS DANS CET ÉNONCÉ!** Autrement dit, lorsque nous allons vous corriger, les seuls fichiers disponibles
+seront `Dockerfile`, `Makefile`, et `machine.turing`.
 
 ## 1.2 Exécution
 
@@ -61,9 +64,11 @@ Dans ces 3 options, chaque paramètre doit pouvoir être omis. Si une alternativ
 
     IMAGE: tp0_img
     INPUT: 0000
-    TURING: None    # if None, runs machine.turing that's already inside the Docker image
+    TURING:    # if not specified, runs machine.turing that's already inside the Docker image
 
 Autrement dit, `make run` (sans aucun arguments) roule `0000` sur la machine `machine.turing` dans l'image `tp0_img`.
+
+Indice: il est possible de traiter ces cas autant dans le Makefile que dans le Dockerfile. À vous de décider.
 
 # Remise et Correction
 
