@@ -1,13 +1,14 @@
-IMAGE=tp0_img
-INPUT=0000
-PRE=
-
-ifdef TURING
-PRE=-v $(PWD)/$(TURING):/machine.turing
-endif
+hubimg=<TODO name of your image on dockerhub>
 
 run:
-	docker run $(PRE) $(IMAGE) machine.turing $(INPUT)
 
 build:
-	docker build -t $(IMAGE) --no-cache .
+
+# DON'T CHANGE ANYTHING BELLOW THIS LINE
+pull:
+	docker pull $(hubimg)
+	docker tag $(hubimg) $(IMAGE)
+
+dockerhub:
+	echo $(hubimg)
+

@@ -5,7 +5,7 @@ conteneurisation. Lors de ce TP, vous aurez la chance de vous familiariser avec 
 
 Vous allez conteneuriser le TP0 de ce cours.
 
-# Votre tâche: Dockerfile
+# Votre tâche
 
 Le code à exécuter se trouve dans ce repo GitHub:
 https://github.com/IFT2245/TP0-docker.
@@ -28,17 +28,17 @@ seront `Dockerfile`, `Makefile`, et `machine.turing`.
 Remarquez que dans le repo TP0-docker, aucun fichier de machine de Turing n'est fourni. Donc même si vous compilez le TP0 à partir 
 des fichiers obtenus avec `git clone`, il n'y a pas d'input à lui passer. 
 
-Placez le fichier de machine de Turing fourni dans cet énoncé (`machine.turing`) dans votre image Docker, de façon à ce que votre TP0 puisse voir
+Placez le fichier de machine de Turing fourni dans cet énoncé (`machine.turing`) dans votre image Docker, de façon à ce que le TP0 puisse voir
 le fichier. Autrement dit, ce fichier doit être *"dans le docker"*.
 
 Ensuite, faites en sorte qu'appeler `docker run` sur votre image exécute la machine de Turing de `machine.turing` sur l'input `0000`.
 
 ## 1.3 STDIN
 
-Devoir toujours exécuter sur l'input `0000` est un peu inutile. Faites en sorte que l'usager puisse indiquer l'argument au moment d'appeler `docker run`, comme suit:
+Devoir toujours exécuter sur l'input `0000` rend votre Docker un peu inutile. Faites en sorte que l'usager puisse indiquer l'argument au moment d'appeler `docker run`, comme suit:
 
     docker build -t tag_pour_votre_image .
-    docker run tag_pour_votre_image input_custom
+    docker run tag_pour_votre_image <input_custom>
 
 ## 1.4 Machine de Turing variable 
 
@@ -66,11 +66,23 @@ Dans ces 3 options, chaque paramètre doit pouvoir être omis. Si une alternativ
     INPUT: 0000
     TURING:    # if not specified, runs machine.turing that's already inside the Docker image
 
-Autrement dit, `make run` (sans aucun arguments) roule `0000` sur la machine `machine.turing` dans l'image `tp0_img`.
+Autrement dit, `make run` (sans aucun argument) roule `0000` sur la machine `machine.turing` dans l'image `tp0_img`.
 
 Indice: il est possible de traiter ces cas autant dans le Makefile que dans le Dockerfile. À vous de décider.
 
+## 1.6 Déploiement
+
+Pour la dernière étape, on vous demande de téléverser votre image vers Dockerhub.
+
+Dockerhub permet à ses usagers d'y placer leurs images Docker. De cette façon, il est possible de télécharger votre
+image à partir de n'importe quel environnement Docker avec une simple commande `git pull`.
+
+Téléversez votre image vers Dockerhub, et ensuite placez le nom de l'image sur Dockerhub dans le `Makefile`, dans la variable `hubimg`.
+
+L'objectif, est que lorsqu'on appellera `make pull`, on obtiendra votre image.
+
 # Remise et Correction
 
-Ce TP est corrigé en "tout ou rien". Autrement dit, seul le point 1.5 est corrigé (puisqu'il vérifie implicitement tous les autres points), 
-et vous aurez les points seulement si toutes les commandes du Makefile fonctionnent.
+Ce TP est corrigé en "tout ou rien". Autrement dit, seul les points 1.5 et 1.6 sont corrigés (puisqu'ils vérifient
+implicitement tous les autres points), 
+et vous aurez les points seulement si toutes les commandes demandées du Makefile fonctionnent.
