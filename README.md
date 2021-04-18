@@ -1,197 +1,71 @@
-<div class="center">
-
-# TP3 – Mémoire virtuelle
-
-</div>
-
-  
-
-# Préambule
-
-Ce TP vise à vous introduire la gestion de mémoire virtuelle. Vous aurez
-a implémenter les algorithmes vus en classe.
-
 # Introduction
 
-Dans ce travail pratique, vous devrez implémenter en langage C un
-programme qui simule un gestionnaire de mémoire virtuelle par pagination
-(paging). Votre solution simulera des accès mémoire consécutifs en
-traduisant les adresses logiques en adresses physiques de 16 bits dans
-un espace d’adresses virtuelle (virtual address space) de taille
-2<sup>16</sup> = 65536 bytes.
+Comme vous l’avez vu en cours, Docker est un puissant système de
+conteneurisation. Lors de ce TP, vous aurez la chance de vous familiariser avec Docker.
 
-Votre programme devra lire et exécuter une liste de commandes sur des
-adresses logiques. Pour y arriver il devra traduire chacune des adresses
-logiques à son adresse physique correspondante en utilisant un TLB
-(Translation Look-aside Buffer) et/ou une table de pages (page table).
+Vous allez conteneuriser le TP0 de ce cours.
 
-# Mise en place
+# Votre tâche: Dockerfile
 
-Le code fournit devrait être directement compatible avec Clion. Cependant,
-le projet dépend des programmes *bison* et *flex* disponibles sur linux et MacOS.
+Le code à exécuter se trouve dans ce repo GitHub:
+https://github.com/IFT2245/TP0-docker.
 
-Sur linux, vous pouvez les installer avec
+Vous devriez déjà être familiers avec ce que ce code fait. Vous devriez savoir, bien sûr, que l'exécutable
+tiré de ce TP accepte un fichier et un input, et crache le résultat obtenu lorsqu'on roule
+la machine de Turing décrite dans le fichier sur ledit input. Rien de très sorcier.
 
-```bash
-sudo apt-get install bison flex
-```
+## 1.1 Compilation
 
-Ce TP est basé sur un projet du livre de référence utilisé dans le
-cours, et il vous aidera à mettre en pratique les sections 8.5 (paging),
-9.2 (demand paging) et 9.4 (page replacement).
+Commencez par modifier le Dockerfile pour que le TP0 soit compilé lors de `docker build`. Vous aurez besoin de CMake,
+make, gcc, etc. **NOTEZ QUE VOUS DEVEZ UTILISER `git clone` POUR OBTENIR LE FICHIER! VOUS NE POUVEZ SUPPOSER LA PRÉSENCE D'AUCUN
+FICHIER LOCAL, SAUF CEUX FOURNIS DANS CET ÉNONCÉ!**
 
-Vous trouverez dans ces sections tous les concepts nécessaires. Pour vous
-simplifier la tâche, on simulera une mémoire physique qui ne contient
-que des caractères imprimables ASCII. C’est-à-dire, pour une mémoire
-physique de 8KB (32 frames par 256 bytes), chacune de ses entrées
-contiennent un caractère parmi les 95 caractères imprimables ASCII
-possibles. Plus spécifiquement, le code fourni comprends déjà les
-structures de données de base pour un gestionnaire de mémoire avec les
-paramètres suivants (src/conf.h):
+## 1.2 Exécution
 
--   256 entrées dans la page table
+Remarquez que dans le repo TP0-docker, aucun fichier de machine de Turing n'est fourni. Donc même si vous compilez le TP0 à partir 
+des fichiers obtenus avec `git clone`, il n'y a pas d'input à lui passer. 
 
--   Taille des pages et des frames de 256 bytes
+Placez le fichier de machine de Turing fourni dans cet énoncé (`machine.turing`) dans votre image Docker, de façon à ce que votre TP0 puisse voir
+le fichier. Autrement dit, ce fichier doit être *"dans le docker"*.
 
--   8 entrées dans le TLB
+Ensuite, faites en sorte qu'appeler `docker run` sur votre image exécute la machine de Turing de `machine.turing` sur l'input `0000`.
 
--   32 frames
+## 1.3 STDIN
 
+Devoir toujours exécuter sur l'input `0000` est un peu inutile. Faites en sorte que l'usager puisse indiquer l'argument au moment d'appeler `docker run`, comme suit:
 
-# Description du projet
+    docker build -t tag_pour_votre_image .
+    docker run tag_pour_votre_image input_custom
 
-Puisqu’on a un espace de mémoire virtuelle de taille 2<sup>16</sup> on
-utilisera des adresses logiques de 16 bits qui encodent le numéro de
-page et le décalage (offset).
+## 1.4 Machine de Turing variable 
 
-Par exemple l’adresse logique 1081 représente la page 4 avec un décalage
-(offset) de 57.
+Devoir toujours exécuter la même machine de Turing est un peu énervant. Si jamais l'usager voulait vraiment rouler votre Docker "en production",
+il devrait construire une image pour chaque machine de Turing qu'il voudrait rouler.
+(Faisons semblant qu'une machine de Turing est autre chose qu'un jouet intéressant pour les programmeurs novices, et qu'on veut vraiment pouvoir utiliser
+votre image.)
 
-Votre programme devra lire de l’entrée standard (stdin) une liste de
-commandes de lecture ou d’écriture. Vous devrez décoder le numéro de
-page et l’offset correspondant et ensuite traduire chaque adresse
-logique à son adresse physique, en utilisant le TLB si possible
-(TLB-hit) ou la table de page dans le cas d’un TLB-miss.
+Trouvez une commande telle que l'usager puisse changer la description de la machine lors de `docker run`, et non lors de `docker build`.
 
-# Traitement de Page Faults
+## 1.5 Makefile
 
-Dans le cas d’un TLB-miss (page non trouvé dans le TLB), la page
-demandée doit être recherchée dans la table de pages. Si elle est déjà
-présente dans la table de pages, on obtient directement le frame
-correspondant. Dans le cas contraire, un page-fault est produit.
+Les points 1.2, 1.3, et 1.4 sont bien beaux, mais on remarque très vite qu'utiliser votre Docker est un processus très verbeux.
+Personnellement, je n'aimerais pas avoir à écrire ~7 commandes bash pour rouler une simple machine de Turing. 
 
-Votre programme devra implémenter la pagination sur demande (section 9.2
-du livre). Lorsque un page-fault est produit, vous devez lire une page
-de taille 256 bytes du fichier *BACKING\_STORE.txt* et le stocker dans
-un frame disponible dans la mémoire physique (au début du programme la
-mémoire physique commence toujours vide).
+Éditez le Makefile fourni. On veut avoir ces fonctionnalités:
 
-Par exemple, si l’adresse logique avec numéro de page 15 produit un
-page-fault, votre programme doit lire la page 15 depuis le
-*backing store* (rapellez-vous que les pages commencent à l’index 0
-et qu’elles font 256 bytes) et copier son contenu dans une frame libre
-dans la mémoire physique. Une fois ce frame stocké (et que la table de
-pages et le TLB sont mis à jour), les futurs accès à la page 15 seront
-adressé soit par le TLB ou soit par la table de page jusqu’à ce que la
-page soit déchargé de la mémoire (swapped out). 
+1. `make build IMAGE=<img>`: ceci appelle `docker build` et tag l'image résultante `<img>`. Par exemple, `make build IMAGE=bloop` nommerais votre image `bloop`.
+2. `make run IMAGE=<img> INPUT=<input>`: ceci appelle `docker run` sur `<img>` avec un input particulier.
+3. `make run IMAGE=<img> TURING=<local turing machine path> INPUT=<input>`: ceci passe une machine de Turing locale au Docker, comme au point 1.4, et la roule sur un input particulier. **NOTEZ QU'ICI VOUS DEVREZ UTILISER UNE COMMANDE COMME `$PWD` POUR TROUVER LE PATH LOCAL DE L'USAGER!**
 
-Le fichier
-*BACKING\_STORE.txt* est déjà ouvert et fermé pour vous. Il se peut que nous changions le fichier
-texte qui représente le backing store lors de la correction. Vous n'avez pas à vous en souciez. Le backing store contient
-65536 caractères imprimables aléatoires. Suggestion: générez des programmes aléatoires simuler des accès mémoires plus compliqués que le/les exemples donnés.
+Dans ces 3 options, chaque paramètre doit pouvoir être omis. Si une alternative n'est pas spécifiée, on doit avoir ces valeurs:
 
-## Commandes
+    IMAGE: tp0_img
+    INPUT: 0000
+    TURING: None    # if None, runs machine.turing that's already inside the Docker image
 
-Les commandes que votre programme a à gérer sont automatiquement lues par les fichiers générés par
-*flex* et *bison*. Les fonctions *vmm\_read* et *vmm\_write* sont
-automatiquement appelées. Vous ne devriez donc vous préoccuper du
-fonctionnement du programme qu’à partir de la gestion des commandes
-lues.
+Autrement dit, `make run` (sans aucun arguments) roule `0000` sur la machine `machine.turing` dans l'image `tp0_img`.
 
-La lecture des commandes se fait par l’entrée standard (*stdin*) et les
-commandes invalides sont ignorées. Les commandes sont de la forme
-suivante:
+# Remise et Correction
 
-### commande d’écriture  
-w&lt;*logical-address*&gt;’&lt;*char-to-write*&gt;’;  
-ex: *w20’b’;*
-
-### commande de lecture  
-r&lt;*logical-address*&gt;;  
-ex: *r89;*
-
-## Points d'entrée
-
-Pour réitérer: les points d'entrée de votre programme sont les fonctions *vmm\_read* et *vmm\_write*
-de *vmm.c*. Vous pouvez les voir comme deux fonctions main.
-
-# Travail à effectuer
-
-Vous devez implémenter les fonctions incomplètes de *vmm.c*, *pm.c*,
-*pt.c*, et *tlb.c*, y compris l’implémentation de l’algorithme de
-remplacement du TLB et des frames ainsi que la gestion de l’état “dirty”
-des pages.
-
-De plus, vous devez corriger les sorties déjà définies dans les
-fonctions *vmm\_read* et *vmm\_write* afin de fournir l’ensemble des
-valeurs qu’il faut afficher.
-
-Finalement, vous devez fournir 2 fichiers de tests *tests/command_tlb.in*
-et *tests/command_pt.in*. Le premier devrait principalement tester
-l’efficacité du TLB alors que le deuxième devrait aussi tester
-l’algorithme de remplacement des pages.
-
-## Quelques précisions
-
-- Notez que le "readonly" mentionné à quelques endroits doit être lu au passé. "Has it been only read?". C'est un peu comme le dirty bit vu en classe, utile pour second hand etc.
-- Toutes les fonctions ayant un TODO doivent être implémentées et fonctionner comme demandé. Cependant, il se peut que vous ne les utilisiez pas toutes. Ce n'est pas grave, mais nous allons quand même vérifier qu'elles marchent. (Nous ignorons complètement l'existence du readonly dans nos tests, donc pas de stress avec ça.)
-- Ce TP est beaucoup plus théorique que les 3 premiers. Faites attention à la matière présentée en classe.
-
-# Compilation
-
-Le CMakeLists.txt fourni permet de compiler votre TP, mais
-pour le rouler, il faut lui passer deux arguments: le backing store et la commande à évaluer.
-
-Vous pouvez changer la configuration de CLion comme suit pour passer les bons arguments:
-
-![img of configuation](./img/conf.png)
-
-Le path sera différent pour vous, mais c'est l'idée générale.
-
-# Remise
-
-Ce travail est à faire **en équipe**. Le code est à remettre sur Github Classroom (autrement dit,
-la dernière version à la date de la remise sera utilisée).
-
-Chaque jour de retard est -15%, mais après le deuxième jour la remise ne
-sera pas acceptée.
-
-Indiquez clairement votre/vos noms dans le fichier `names.txt` tel qu'indiqué dans le repo du [TPX](https://github.com/IFT2245/TPX).
-
-Le programme doit être exécutable sur les ordinateurs du DIRO. Assurez-vous que tout fonctionne correctement sur les ordinateurs du
-DIRO.
-
-# Barême
-
-- Votre note sera divisée équitablement entre chaque fichier C principal (pm, pt, tlb, vmm), la qualité de vos tests de TLB et de PT, et la
-qualité de votre algorithme de remplacement.
-
--   Tout usage de matériel (code ou texte) emprunté à quelqu’un d’autre
-    (trouvé sur le web, etc.) doit être dûment mentionné, sans quoi cela
-    sera considéré comme du plagiat. Si pour une question votre solution
-    est directement copiée, même si il y a attribution de la source,
-    cette question se verra attribuée la note de zéro. Vous pourrez
-    cependant l’utiliser dans les sections suivantes sans pénalité.
-
--   Votre devoir sera corrigé automatiquement en très grande partie. Si
-    vous déviez de ce qui est demandé en output, les points que vous
-    perdrez seront perdus pour de bon. Si vous n’êtes pas certains d’un
-    caractère demandé, demandez, et nous répondrons
-    de façon à ce que chaque étudiant puisse voir la réponse.
-
--   La méthode de développement recommandée est d’utiliser CLion et son
-    intégration avec Valgrind. Si vous voulez utiliser d’autres
-    techniques, vous pouvez le faire, mais nous ne vous aiderons si vous
-    rencontrez des problèmes avec ces techniques.
-
-- Les barèmes standards du [TPX](https://github.com/IFT2245/TPX) s'appliquent (fuites mémoires, accès illégaux, etc).
+Ce TP est corrigé en "tout ou rien". Autrement dit, seul le point 1.5 est corrigé (puisqu'il vérifie implicitement tous les autres points), 
+et vous aurez les points seulement si toutes les commandes du Makefile fonctionnent.
