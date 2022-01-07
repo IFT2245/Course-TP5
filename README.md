@@ -86,3 +86,5 @@ L'objectif, est que lorsqu'on appellera `make pull`, on obtiendra votre image.
 Ce TP est corrigé en "tout ou rien". Autrement dit, seul les points 1.5 et 1.6 sont corrigés (puisqu'ils vérifient
 implicitement tous les autres points), 
 et vous aurez les points seulement si toutes les commandes demandées du Makefile fonctionnent.
+
+- Les barèmes standards du TPX s'appliquent (fuites mémoires, accès illégaux, etc), s'ils peuvent s'appliquer.
