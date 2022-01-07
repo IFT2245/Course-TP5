@@ -87,4 +87,4 @@ Ce TP est corrigé en "tout ou rien". Autrement dit, seul les points 1.5 et 1.6 
 implicitement tous les autres points), 
 et vous aurez les points seulement si toutes les commandes demandées du Makefile fonctionnent.
 
-- Les barèmes standards du TPX s'appliquent (fuites mémoires, accès illégaux, etc), s'ils peuvent s'appliquer.
+- Les barèmes standards du [TPX](https://github.com/IFT2245/TPX) s'appliquent (fuites mémoires, accès illégaux, etc), s'ils peuvent s'appliquer.
