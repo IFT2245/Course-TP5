@@ -58,7 +58,7 @@ Personnellement, je n'aimerais pas avoir à écrire ~7 commandes bash pour roule
 
 1. `make build IMAGE=<img>`: ceci appelle `docker build` et tag l'image résultante `<img>`. Par exemple, `make build IMAGE=bloop` nommerais votre image `bloop`.
 2. `make run IMAGE=<img> INPUT=<input>`: ceci appelle `docker run` sur `<img>` avec un input particulier.
-3. `make run IMAGE=<img> TURING=<local turing machine path> INPUT=<input>`: ceci passe une machine de Turing locale au Docker, comme au point 1.4, et la roule sur un input particulier. **NOTEZ QU'ICI VOUS DEVREZ UTILISER UNE COMMANDE COMME `$PWD` POUR TROUVER LE PATH LOCAL DE L'USAGER!**
+3. `make run IMAGE=<img> TURING=<local turing machine path> INPUT=<input>`: ceci passe une machine de Turing locale au Docker, comme au point 1.4, et la roule sur un input particulier. **NOTEZ QU'ICI VOUS DEVREZ UTILISER UNE COMMANDE COMME `$PWD` POUR TROUVER LE PATH LOCAL DE L'USAGER!** (mais probablement pas exactement `$PWD`...)
 
 Dans ces 3 options, chaque paramètre doit pouvoir être omis. Si une alternative n'est pas spécifiée, on doit avoir ces valeurs:
 
